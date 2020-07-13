@@ -1,7 +1,7 @@
 {
   "name": "graphql-introfields",
   "version": "0.0.0-development",
-  "description": "Apollo-server resolver utilities based on fields introspection",
+  "description": "GraphQL resolver utilities based on fields introspection",
   "main": "dist/index.js",
   "author": "Joel Marcotte",
   "license": "MIT",
