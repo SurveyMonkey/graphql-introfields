@@ -24,10 +24,10 @@
   <a href="https://github.com/SurveyMonkey/graphql-introfields">
   </a>
 
-  <h3 align="center">GraphQL Ergonomock</h3>
+  <h3 align="center">GraphQL Introfields</h3>
 
   <p align="center">
-    🔮 Developer-friendly automagical mocking for GraphQL
+    🏑 GraphQL resolver utilities based on fields introspection.
     <br />
     <a href="https://github.com/SurveyMonkey/graphql-introfields/issues">Report Bug</a>
     ·
@@ -36,17 +36,17 @@
 </p>
 
 
-
 <!-- TABLE OF CONTENTS -->
 ## Table of Contents
 
 - [Table of Contents](#table-of-contents)
 - [About The Project](#about-the-project)
-  - [Basic Example](#basic-example)
   - [Built With](#built-with)
 - [Getting Started](#getting-started)
   - [Installation](#installation)
   - [Usage](#usage)
+    - [Basic Example](#basic-example)
+    - [`resolveIDFieldFromRoot`](#resolveidfieldfromroot)
 - [Roadmap](#roadmap)
 - [Contributing](#contributing)
 - [License](#license)
@@ -58,11 +58,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-TBD
-
-### Basic Example
-
-TBD
+This library provides utilities to facilitate the resolution of GraphQL based on which fields are requested.
 
 ### Built With
 * [Typescript](https://www.typescriptlang.org/)
@@ -70,18 +66,91 @@ TBD
 * [Jest](https://jestjs.io)
 
 
-
 <!-- GETTING STARTED -->
 ## Getting Started
 
 ### Installation
 
-TBD
+```
+npm install graphql-introfields
+```
 
 <!-- USAGE EXAMPLES -->
 ### Usage
 
-TBD
+#### Basic Example
+
+With the following schema:
+```graphql
+type Employee {
+  id: ID!
+  name: String!
+}
+
+type VideoStore {
+  id: ID!
+  employees: [Employee!]!
+  manager: Employee!
+}
+
+type Query {
+  videostore: VideoStore
+}
+
+schema {
+  query: Query
+}
+```
+
+And with the following resolvers:
+
+```javascript
+import { resolveBasedOnFields } from 'graphql-introfields';
+
+const resolvers = {
+  Query: {
+    videostore: getVideoStoreData,
+  },
+  VideoStore: {
+    manager: resolveBasedOnFields((fields) => {
+      // if you know that only the `id` field is asked for, and it's present on the root, you can prevent
+      // unnecessary resolution of the manager field (which may be an over-the-network request).
+      if (fields.length === 1 && fields[0].name.value === 'id') {
+        return (root, _args, _ctx, _info) => ({ id: root['managerId'] });
+      }
+      return (root, _args, _ctx, _info) => getEmployeeById(root.managerId);
+    }),
+  },
+}
+```
+
+The following query doesn't actually call  `getEmployeeById`:
+
+```graphql
+query {
+  videostore {
+    manager {
+      id
+    }
+  }
+}
+```
+
+#### `resolveIDFieldFromRoot`
+
+The above use-case is actually available as a provided utility.
+
+```js
+import { resolveIDFieldFromRoot } from 'graphql-introfields';
+const resolvers = {
+  videostore: {
+    manager: resolveIDFieldFromRoot(
+      'managerId',
+      (root) => getEmployeeById(root.managerId)
+    )
+  }
+}
+```
 
 <!-- ROADMAP -->
 ## Roadmap
@@ -119,7 +188,6 @@ Project Link: [https://github.com/SurveyMonkey/graphql-introfields](https://gith
 <!-- ACKNOWLEDGEMENTS -->
 ## Acknowledgements
 
-* [A new approach to mocking GraphQL Data](https://www.freecodecamp.org/news/a-new-approach-to-mocking-graphql-data-1ef49de3d491/)
 * [GraphQL-Tools](https://github.com/apollographql/graphql-tools)
 * [GraphQL-JS](https://github.com/graphql/graphql-js)
 
