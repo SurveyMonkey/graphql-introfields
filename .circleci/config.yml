@@ -1,0 +1,33 @@
+version: 2.1
+orbs:
+  node: circleci/node@3.0.0
+jobs:
+  build-test-release:
+    executor:
+      name: node/default
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: yarn
+      - run: yarn run build
+      - run: yarn add --dev jest-junit
+      - run:
+          command: yarn test -- --ci --runInBand --collectCoverage --reporters=default --reporters=jest-junit
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: "reports/junit/js-test-results.xml"
+      - store_test_results:
+          path: reports/junit
+      - run:
+          name: Upload Coverage Results
+          command: |
+            curl -s https://codecov.io/bash | bash -s -- \
+              -f "coverage/coverage-final.json" \
+              -t "${CODECOV_TOKEN}" \
+              -n "${CIRCLE_BUILD_NUM}" \
+              -y ".codecov.yml" \
+              -Z || echo 'Codecov upload failed'
+      - run: yarn run semantic-release || echo 'failed semantic-release...'
+workflows:
+    pipeline:
+      jobs:
+        - build-test-release

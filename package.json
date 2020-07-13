@@ -1,0 +1,46 @@
+{
+  "name": "graphql-introfields",
+  "version": "0.0.0-development",
+  "description": "Apollo-server resolver utilities based on fields introspection",
+  "main": "dist/index.js",
+  "author": "Joel Marcotte",
+  "license": "MIT",
+  "keywords": [
+    "apollo-server",
+    "apollo",
+    "graphql",
+    "resolvers",
+    "typescript"
+  ],
+  "scripts": {
+    "test": "jest --coverage",
+    "build": "rimraf ./dist && tsc",
+    "prepublishOnly": "npm run build",
+    "semantic-release": "semantic-release"
+  },
+  "files": [
+    "dist"
+  ],
+  "devDependencies": {
+    "@graphql-tools/schema": "^6.0.12",
+    "@types/jest": "^26.0.4",
+    "jest": "26.0.1",
+    "jest-extended": "0.11.5",
+    "prettier": "2.0.5",
+    "semantic-release": "17.0.8",
+    "ts-jest": "26.1.0",
+    "typescript": "3.9.3"
+  },
+  "renovate": {
+    "extends": [
+      "config:js-lib"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SurveyMonkey/graphql-introfields.git"
+  },
+  "dependencies": {
+    "graphql": "^15.0.0"
+  }
+}
