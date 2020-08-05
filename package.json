@@ -22,7 +22,7 @@
     "dist"
   ],
   "devDependencies": {
-    "@graphql-tools/schema": "6.0.12",
+    "@graphql-tools/schema": "6.0.16",
     "@types/jest": "26.0.4",
     "jest": "26.1.0",
     "jest-extended": "0.11.5",
